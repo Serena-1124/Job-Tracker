@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历智能匹配工具 - 临时预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #fff7f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .logo-text {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .feature {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+        }
+        
+        .feature.blue .feature-icon { background: #dbeafe; }
+        .feature.green .feature-icon { background: #dcfce7; }
+        .feature.purple .feature-icon { background: #f3e8ff; }
+        .feature.orange .feature-icon { background: #ffedd5; }
+        
+        .feature h3 {
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .feature p {
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+        .steps {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 40px;
+        }
+        
+        .steps h2 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 32px;
+            font-size: 1.8rem;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+        }
+        
+        .step {
+            text-align: center;
+            position: relative;
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .step h3 {
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .warning h2 {
+            color: #d97706;
+            margin-bottom: 12px;
+        }
+        
+        .warning p {
+            color: #92400e;
+            margin-bottom: 16px;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            text-align: left;
+            display: inline-block;
+            margin: 0 auto;
+        }
+        
+        .file-list {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .file-list h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .file-item::before {
+            content: '📄';
+            margin-right: 12px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: #64748b;
+            margin-top: 40px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <span class="logo-text">简</span>
+            </div>
+            <h1>简历智能匹配工具</h1>
+            <p class="subtitle">AI驱动的简历定制平台</p>
+        </header>
+
+        <div class="warning">
+            <h2>⚠️ 开发服务器需要Node.js</h2>
+            <p>完整的React应用需要Node.js环境。请按以下步骤安装：</p>
+            <div class="code-block">
+                1. 访问 https://nodejs.org 下载Node.js LTS版本<br>
+                2. 安装后，在项目目录运行: npm install && npm run dev<br>
+                3. 或直接双击 start.bat 文件
+            </div>
+        </div>
+
+        <section class="features">
+            <div class="feature blue">
+                <div class="feature-icon">✨</div>
+                <h3>智能匹配</h3>
+                <p>AI分析JD与简历的匹配程度，自动筛选高相关经历</p>
+            </div>
+            <div class="feature green">
+                <div class="feature-icon">📄</div>
+                <h3>简历解析</h3>
+                <p>自动解析DOC/DOCX文档，智能拆分经历项目</p>
+            </div>
+            <div class="feature purple">
+                <div class="feature-icon">⚡</div>
+                <h3>AI润色</h3>
+                <p>智能优化简历表达，使用专业术语和强动词</p>
+            </div>
+            <div class="feature orange">
+                <div class="feature-icon">🛡️</div>
+                <h3>隐私保护</h3>
+                <p>所有处理在本地完成，不上传任何数据到服务器</p>
+            </div>
+        </section>
+
+        <section class="steps">
+            <h2>使用流程</h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">01</div>
+                    <h3>输入JD</h3>
+                    <p>上传岗位描述或截图</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">02</div>
+                    <h3>上传简历</h3>
+                    <p>解析你的简历文档</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">03</div>
+                    <h3>智能匹配</h3>
+                    <p>AI分析匹配度并润色</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">04</div>
+                    <h3>导出文档</h3>
+                    <p>一键生成Word简历</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="file-list">
+            <h2>项目文件已创建</h2>
+            <div class="file-item">package.json - 项目依赖配置</div>
+            <div class="file-item">vite.config.ts - 构建工具配置</div>
+            <div class="file-item">tailwind.config.js - 样式框架配置</div>
+            <div class="file-item">src/App.tsx - 主应用组件</div>
+            <div class="file-item">src/main.tsx - 应用入口</div>
+            <div class="file-item">src/store/index.ts - 状态管理</div>
+            <div class="file-item">src/services/ - 核心服务</div>
+            <div class="file-item">src/components/ - UI组件</div>
+            <div class="file-item">.trae/documents/PRD-简历智能匹配工具.md - 产品需求文档</div>
+            <div class="file-item">.trae/documents/技术架构文档-简历匹配工具.md - 技术架构文档</div>
+            <div class="file-item">start.bat - 一键启动脚本</div>
+        </section>
+
+        <footer class="footer">
+            <p>简历智能匹配工具 - AI驱动的简历定制平台</p>
+            <p>所有简历处理均在本地完成，保护您的隐私安全</p>
+        </footer>
+    </div>
+</body>
+</html>

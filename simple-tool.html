@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历智能匹配工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            font-size: 28px;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .keyword {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .keyword-skill {
+            background: #e6f7ff;
+            color: #0066cc;
+        }
+        .keyword-soft {
+            background: #f0e6ff;
+            color: #722ed1;
+        }
+        .keyword-requirement {
+            background: #fff7e6;
+            color: #d48806;
+        }
+        .experience-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .experience-item {
+            background: #f8f9fb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        .experience-title {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .match-score {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .match-high {
+            background: #d4edda;
+            color: #155724;
+        }
+        .match-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .match-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .experience-content {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .experience-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f4ff;
+            color: #0056b3;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background: #e0e0e0;
+            color: #999;
+            transition: all 0.3s;
+        }
+        .step.active {
+            background: #667eea;
+            color: white;
+        }
+        .step.completed {
+            background: #52c41a;
+            color: white;
+        }
+        .step-line {
+            width: 60px;
+            height: 2px;
+            background: #e0e0e0;
+            margin-top: 19px;
+        }
+        .step-line.completed {
+            background: #52c41a;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+        .upload-area {
+            border: 3px dashed #d0d0d0;
+            border-radius: 12px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .upload-text {
+            color: #666;
+        }
+        .polished-resume {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 30px;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        .tips {
+            background: #fff7e6;
+            border-left: 4px solid #faad14;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .tips h4 {
+            color: #ad6800;
+            margin-bottom: 10px;
+        }
+        .tips ul {
+            margin-left: 20px;
+            color: #8c5a00;
+        }
+        .tips li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🎯 简历智能匹配工具</h1>
+            <p class="subtitle">快速优化你的简历，让它更贴合目标岗位！</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1">1</div>
+            <div class="step-line" id="line1"></div>
+            <div class="step" id="step2">2</div>
+            <div class="step-line" id="line2"></div>
+            <div class="step" id="step3">3</div>
+            <div class="step-line" id="line3"></div>
+            <div class="step" id="step4">4</div>
+            <div class="step-line" id="line4"></div>
+            <div class="step" id="step5">5</div>
+        </div>
+
+        <!-- 步骤1：输入JD -->
+        <div class="card" id="page1">
+            <h2>📋 步骤1：输入岗位描述（JD）</h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="switchJDTab('text')">文本粘贴</button>
+                <button class="tab" onclick="switchJDTab('upload')">截图上传</button>
+            </div>
+
+            <div class="tab-content active" id="jd-text">
+                <textarea id="jd-textarea" placeholder="请在此粘贴目标岗位的JD内容..."></textarea>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="extractKeywords()">提取关键词</button>
+                    <button class="btn btn-secondary" onclick="nextStep()">下一步</button>
+                </div>
+            </div>
+
+            <div class="tab-content" id="jd-upload">
+                <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">点击上传岗位截图</div>
+                    <div class="upload-text" style="font-size: 12px; color: #999;">(PNG, JPG格式)</div>
+                </div>
+                <input type="file" id="file-input" accept="image/*" style="display: none;">
+                <div style="margin-top: 15px;">
+                    <p style="color: #999; font-size: 13px;">💡 提示：如果截图识别不可用，建议直接使用文本粘贴功能！</p>
+                </div>
+            </div>
+
+            <div id="keywords-display" style="display: none;">
+                <h3 style="margin-top: 25px; margin-bottom: 10px;">🔍 已提取的关键词</h3>
+                <div class="keywords" id="keywords-container"></div>
+            </div>
+        </div>
+
+        <!-- 步骤2：上传简历 -->
+        <div class="card" id="page2" style="display: none;">
+            <h2>📄 步骤2：上传你的简历</h2>
+            
+            <textarea id="resume-textarea" placeholder="请在此粘贴你的简历内容..."></textarea>
+            
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="parseResume()">解析简历</button>
+            </div>
+        </div>
+
+        <!-- 步骤3：经历分类 -->
+        <div class="card" id="page3" style="display: none;">
+            <h2>📝 步骤3：经历分类与筛选</h2>
+            
+            <div id="experience-container" class="experience-list"></div>
+            
+            <div class="btn-group" style="margin-top: 25px;">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="analyzeMatch()">分析匹配度</button>
+            </div>
+        </div>
+
+        <!-- 步骤4：智能匹配 -->
+        <div class="card" id="page4" style="display: none;">
+            <h2>🎯 步骤4：匹配度分析</h2>
+            
+            <div id="match-results" class="experience-list"></div>
+            
+            <div class="btn-group" style="margin-top: 25px;">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="polishResume()">AI润色</button>
+            </div>
+        </div>
+
+        <!-- 步骤5：润色与导出 -->
+        <div class="card" id="page5" style="display: none;">
+            <h2>✨ 步骤5：简历润色与导出</h2>
+            
+            <h3 style="margin-bottom: 10px;">优化后的简历</h3>
+            <div class="polished-resume" id="polished-resume"></div>
+            
+            <div class="tips">
+                <h4>💡 优化建议</h4>
+                <ul id="tips-list"></ul>
+            </div>
+            
+            <div class="btn-group" style="margin-top: 25px;">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="copyResume()">复制简历</button>
+                <button class="btn btn-primary" onclick="downloadResume()">下载TXT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let jdText = '';
+        let resumeText = '';
+        let keywords = [];
+        let experiences = [];
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('简历智能匹配工具已加载');
+        });
+
+        function switchJDTab(tab) {
+            try {
+                const tabs = document.querySelectorAll('.tabs .tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                
+                if (tab === 'text') {
+                    tabs[0].classList.add('active');
+                    document.getElementById('jd-text').classList.add('active');
+                    document.getElementById('jd-upload').classList.remove('active');
+                } else {
+                    tabs[1].classList.add('active');
+                    document.getElementById('jd-text').classList.remove('active');
+                    document.getElementById('jd-upload').classList.add('active');
+                }
+            } catch (e) {
+                console.error('切换标签失败:', e);
+            }
+        }
+
+        function extractKeywords() {
+            try {
+                jdText = document.getElementById('jd-textarea').value;
+                if (!jdText.trim()) {
+                    alert('请先输入JD内容！');
+                    return;
+                }
+
+                const text = jdText.toLowerCase();
+                keywords = [];
+
+                const skillKeywords = ['javascript', 'react', 'vue', 'angular', 'typescript', 'node.js', 'python', 'java', 
+                    'sql', 'mysql', 'postgresql', 'mongodb', 'redis', 'html', 'css', 'sass', 'less', 'git', 'linux', 'docker', 'k8s', 'kubernetes', 'aws', 'azure',
+                    '数据结构', '算法', '系统设计', '敏捷开发', 'scrum', '敏捷', '前后端', '前端', '后端', '全栈', 'api', 'restful', 'graphql'];
+                
+                skillKeywords.forEach(kw => {
+                    if (text.includes(kw)) {
+                        keywords.push({ text: kw, type: 'skill', weight: 10 });
+                    }
+                });
+
+                const softKeywords = ['沟通', '协作', '团队合作', '学习能力', '责任心', '抗压能力', '创新', '解决问题', 
+                    '分析能力', '逻辑思维', '表达能力', '协调能力', '执行力', '主动性'];
+                
+                softKeywords.forEach(kw => {
+                    if (text.includes(kw)) {
+                        keywords.push({ text: kw, type: 'soft', weight: 7 });
+                    }
+                });
+
+                const reqKeywords = ['本科', '硕士', '博士', '3年', '5年', '2年', '1年', '应届生', '经验要求', '工作经验'];
+                
+                reqKeywords.forEach(kw => {
+                    if (text.includes(kw)) {
+                        keywords.push({ text: kw, type: 'requirement', weight: 6 });
+                    }
+                });
+
+                if (keywords.length === 0) {
+                    keywords = [
+                        { text: '沟通能力', type: 'soft', weight: 7 },
+                        { text: '团队协作', type: 'soft', weight: 7 },
+                        { text: '学习能力', type: 'soft', weight: 6 }
+                    ];
+                }
+
+                displayKeywords();
+                alert('关键词提取成功！共提取 ' + keywords.length + ' 个关键词');
+            } catch (e) {
+                console.error('提取关键词失败:', e);
+                alert('提取关键词失败，请重试');
+            }
+        }
+
+        function displayKeywords() {
+            try {
+                const container = document.getElementById('keywords-container');
+                container.innerHTML = '';
+                
+                keywords.forEach(kw => {
+                    const span = document.createElement('span');
+                    span.className = `keyword keyword-${kw.type}`;
+                    span.textContent = kw.text;
+                    container.appendChild(span);
+                });
+
+                document.getElementById('keywords-display').style.display = 'block';
+            } catch (e) {
+                console.error('显示关键词失败:', e);
+            }
+        }
+
+        function parseResume() {
+            try {
+                resumeText = document.getElementById('resume-textarea').value;
+                if (!resumeText.trim()) {
+                    alert('请先粘贴简历内容！');
+                    return;
+                }
+
+                const lines = resumeText.split('\n').filter(l => l.trim());
+                experiences = [];
+                
+                let currentExp = null;
+                let currentPoints = [];
+
+                lines.forEach(line => {
+                    const trimmed = line.trim();
+                    
+                    if (trimmed.match(/^【|^\[|^一、|^二、|^三、|^四、|^五、|^实习经历|^项目经历|^校园经历|^工作经历|^项目|^实习/) || 
+                        (trimmed.length > 3 && trimmed.length < 30 && !trimmed.startsWith('•') && !trimmed.startsWith('-') && !trimmed.startsWith('*') && 
+                         (trimmed.includes('实习') || trimmed.includes('项目') || trimmed.includes('校园') || trimmed.includes('工作')))) {
+                        if (currentExp && currentPoints.length > 0) {
+                            currentExp.points = currentPoints.map((p, i) => ({
+                                id: `point-${experiences.length}-${i}`,
+                                content: p
+                            }));
+                            experiences.push(currentExp);
+                        }
+                        
+                        const cleanTitle = trimmed.replace(/^【|^\[|^一、|^二、|^三、|^四、|^五、|^★|^●/g, '').trim();
+                        currentExp = {
+                            id: `exp-${experiences.length}`,
+                            title: cleanTitle || '未命名经历',
+                            rawText: '',
+                            category: trimmed.includes('实习') ? 'internship' : 
+                                      trimmed.includes('项目') ? 'project' :
+                                      trimmed.includes('校园') || trimmed.includes('学生') ? 'campus' : 'other',
+                            points: [],
+                            matchScore: 0
+                        };
+                        currentPoints = [];
+                    } else if (currentExp && trimmed.length > 0) {
+                        const cleanPoint = trimmed.replace(/^•|^-|^\*|^●|^★|^\d+\.\s*/g, '').trim();
+                        if (cleanPoint.length > 0) {
+                            currentPoints.push(cleanPoint);
+                            currentExp.rawText += cleanPoint + ' ';
+                        }
+                    }
+                });
+
+                if (currentExp && currentPoints.length > 0) {
+                    currentExp.points = currentPoints.map((p, i) => ({
+                        id: `point-${experiences.length}-${i}`,
+                        content: p
+                    }));
+                    experiences.push(currentExp);
+                }
+
+                if (experiences.length === 0) {
+                    const basicPoints = lines.slice(0, Math.min(15, lines.length)).filter(l => l.trim().length > 2);
+                    experiences.push({
+                        id: 'exp-0',
+                        title: '我的工作/学习经历',
+                        rawText: resumeText,
+                        category: 'other',
+                        points: basicPoints.map((l, i) => ({ id: `point-0-${i}`, content: l.replace(/^•|^-|^\*/g, '').trim() })),
+                        matchScore: 0
+                    });
+                }
+
+                displayExperiences();
+                alert('简历解析成功！共解析出 ' + experiences.length + ' 条经历');
+                goToStep(3);
+            } catch (e) {
+                console.error('解析简历失败:', e);
+                alert('解析简历失败，请重试');
+            }
+        }
+
+        function displayExperiences() {
+            try {
+                const container = document.getElementById('experience-container');
+                container.innerHTML = '';
+
+                if (experiences.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📝</div>
+                            <p>暂无经历数据</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                experiences.forEach(exp => {
+                    const div = document.createElement('div');
+                    div.className = 'experience-item';
+                    div.innerHTML = `
+                        <div class="experience-header">
+                            <div>
+                                <span class="experience-category">${getCategoryLabel(exp.category)}</span>
+                                <div class="experience-title">${exp.title}</div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select onchange="changeCategory('${exp.id}', this.value)" style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ddd;">
+                                    <option value="internship" ${exp.category === 'internship' ? 'selected' : ''}>💼 实习经历</option>
+                                    <option value="project" ${exp.category === 'project' ? 'selected' : ''}>🚀 项目经历</option>
+                                    <option value="campus" ${exp.category === 'campus' ? 'selected' : ''}>🎓 校园经历</option>
+                                    <option value="other" ${exp.category === 'other' ? 'selected' : ''}>📌 其他经历</option>
+                                </select>
+                                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                                    <input type="checkbox" id="check-${exp.id}" checked>
+                                    <span style="font-size: 13px;">保留</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="experience-content">
+                            ${exp.points.map(p => `• ${p.content}`).join('\n')}
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error('显示经历失败:', e);
+            }
+        }
+
+        function getCategoryLabel(cat) {
+            const labels = {
+                internship: '💼 实习经历',
+                project: '🚀 项目经历',
+                campus: '🎓 校园经历',
+                other: '📌 其他经历'
+            };
+            return labels[cat] || '📌 其他经历';
+        }
+
+        function changeCategory(id, category) {
+            try {
+                const exp = experiences.find(e => e.id === id);
+                if (exp) {
+                    exp.category = category;
+                }
+            } catch (e) {
+                console.error('修改分类失败:', e);
+            }
+        }
+
+        function analyzeMatch() {
+            try {
+                const selectedIds = experiences
+                    .filter(exp => document.getElementById(`check-${exp.id}`)?.checked !== false)
+                    .map(exp => exp.id);
+                
+                experiences = experiences.filter(exp => selectedIds.includes(exp.id));
+
+                const maxPossibleScore = keywords.reduce((sum, kw) => sum + kw.weight, 0);
+                
+                experiences.forEach(exp => {
+                    let score = 0;
+                    const text = (exp.title + ' ' + exp.rawText).toLowerCase();
+                    
+                    keywords.forEach(kw => {
+                        if (text.includes(kw.text.toLowerCase())) {
+                            score += kw.weight;
+                        }
+                    });
+
+                    exp.matchScore = maxPossibleScore > 0 ? Math.min(100, Math.round((score / maxPossibleScore) * 100)) : 50;
+                });
+
+                experiences.sort((a, b) => b.matchScore - a.matchScore);
+
+                displayMatchResults();
+                goToStep(4);
+            } catch (e) {
+                console.error('分析匹配度失败:', e);
+                alert('分析匹配度失败，请重试');
+            }
+        }
+
+        function displayMatchResults() {
+            try {
+                const container = document.getElementById('match-results');
+                container.innerHTML = '';
+
+                experiences.forEach(exp => {
+                    const scoreClass = exp.matchScore >= 70 ? 'match-high' : 
+                                       exp.matchScore >= 40 ? 'match-medium' : 'match-low';
+                    
+                    const div = document.createElement('div');
+                    div.className = 'experience-item';
+                    div.innerHTML = `
+                        <div class="experience-header">
+                            <div>
+                                <span class="experience-category">${getCategoryLabel(exp.category)}</span>
+                                <div class="experience-title">${exp.title}</div>
+                            </div>
+                            <div class="match-score ${scoreClass}">${exp.matchScore}% 匹配</div>
+                        </div>
+                        <div class="experience-content">
+                            ${exp.points.map(p => `• ${p.content}`).join('\n')}
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error('显示匹配结果失败:', e);
+            }
+        }
+
+        function polishResume() {
+            try {
+                let polished = '';
+                
+                polished += '='.repeat(50) + '\n';
+                polished += '个人简历\n';
+                polished += '='.repeat(50) + '\n\n';
+
+                const filteredExp = experiences.filter(exp => exp.matchScore >= 30);
+
+                const categories = ['internship', 'project', 'campus', 'other'];
+                categories.forEach(cat => {
+                    const catExp = filteredExp.filter(exp => exp.category === cat);
+                    if (catExp.length > 0) {
+                        polished += getCategoryHeader(cat) + '\n';
+                        polished += '-'.repeat(40) + '\n';
+                        
+                        catExp.forEach(exp => {
+                            polished += `【${exp.title}】\n`;
+                            exp.points.forEach(point => {
+                                let polishedPoint = polishPoint(point.content);
+                                polished += `• ${polishedPoint}\n`;
+                            });
+                            polished += '\n';
+                        });
+                    }
+                });
+
+                document.getElementById('polished-resume').textContent = polished;
+                displayTips();
+                
+                goToStep(5);
+            } catch (e) {
+                console.error('润色简历失败:', e);
+                alert('润色简历失败，请重试');
+            }
+        }
+
+        function getCategoryHeader(cat) {
+            const headers = {
+                internship: '💼 实习经历',
+                project: '🚀 项目经历',
+                campus: '🎓 校园经历',
+                other: '📌 其他经历'
+            };
+            return headers[cat] || '📌 其他经历';
+        }
+
+        function polishPoint(text) {
+            let result = text.trim();
+            
+            // 替换弱动词
+            result = result.replace(/^负责\s*/g, '主导');
+            result = result.replace(/^参与\s*/g, '深度参与');
+            result = result.replace(/^做了\s*/g, '完成');
+            result = result.replace(/^学习\s*/g, '熟练掌握');
+            result = result.replace(/^了解\s*/g, '掌握');
+            result = result.replace(/^使用\s*/g, '运用');
+            
+            // 中间替换
+            result = result.replace(/负责/g, '主导');
+            result = result.replace(/参与/g, '深度参与');
+            
+            // 检查是否有数据量化
+            const dataWords = ['%', '个', '万', '千', '提升', '优化', '减少', '增加', '完成', '实现'];
+            const hasData = dataWords.some(w => result.includes(w));
+            if (!hasData && result.length < 25) {
+                result = result + '，取得了良好成效';
+            }
+            
+            return result;
+        }
+
+        function displayTips() {
+            try {
+                const tipsList = document.getElementById('tips-list');
+                const tips = [
+                    '优先展示高匹配度的经历，放在简历前面位置',
+                    '用数据说话，比如"性能提升了50%"、"服务了1000+用户"',
+                    '使用动词开头：主导、实现、优化、完成、设计等',
+                    '精简描述，每点控制在2行以内，突出重点',
+                    '删除与JD无关的经历，保持简历在1页以内最佳'
+                ];
+                
+                tipsList.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+            } catch (e) {
+                console.error('显示建议失败:', e);
+            }
+        }
+
+        function copyResume() {
+            try {
+                const resume = document.getElementById('polished-resume').textContent;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(resume).then(() => {
+                        alert('✅ 简历已复制到剪贴板！');
+                    }).catch(() => {
+                        fallbackCopy(resume);
+                    });
+                } else {
+                    fallbackCopy(resume);
+                }
+            } catch (e) {
+                console.error('复制失败:', e);
+                alert('复制失败，请手动选择复制');
+            }
+        }
+
+        function fallbackCopy(text) {
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '0';
+                textArea.style.top = '0';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ 简历已复制到剪贴板！');
+            } catch (e) {
+                alert('复制失败，请手动选择复制');
+            }
+        }
+
+        function downloadResume() {
+            try {
+                const resume = document.getElementById('polished-resume').textContent;
+                const blob = new Blob([resume], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '个人简历_优化版.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('✅ 简历下载成功！');
+            } catch (e) {
+                console.error('下载失败:', e);
+                alert('下载失败，请重试');
+            }
+        }
+
+        function nextStep() {
+            try {
+                if (currentStep === 1) {
+                    jdText = document.getElementById('jd-textarea').value;
+                    if (!jdText.trim()) {
+                        alert('请先输入JD内容！');
+                        return;
+                    }
+                    if (keywords.length === 0) {
+                        extractKeywords();
+                    }
+                }
+                goToStep(currentStep + 1);
+            } catch (e) {
+                console.error('下一步失败:', e);
+            }
+        }
+
+        function prevStep() {
+            try {
+                goToStep(currentStep - 1);
+            } catch (e) {
+                console.error('上一步失败:', e);
+            }
+        }
+
+        function goToStep(step) {
+            try {
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById(`page${i}`).style.display = 'none';
+                    const stepEl = document.getElementById(`step${i}`);
+                    stepEl.classList.remove('active', 'completed');
+                    
+                    if (i < step) {
+                        stepEl.classList.add('completed');
+                    } else if (i === step) {
+                        stepEl.classList.add('active');
+                    }
+                    
+                    const line = document.getElementById(`line${i}`);
+                    if (line) {
+                        line.classList.remove('completed');
+                        if (i < step) line.classList.add('completed');
+                    }
+                }
+                
+                document.getElementById(`page${step}`).style.display = 'block';
+                currentStep = step;
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) {
+                console.error('跳转步骤失败:', e);
+            }
+        }
+
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            alert('⚠️ 截图识别功能需要后端支持，建议使用文本粘贴功能！\n\n请将截图文字复制后直接粘贴到文本框中。');
+        });
+    </script>
+</body>
+</html>
