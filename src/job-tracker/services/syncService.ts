@@ -34,12 +34,13 @@ async function syncTable<T extends { id: string }>(
   console.log(`[Sync] ${tableName}: 本地 ${localItems.length} 条`);
 
   // 1. 获取云端该用户的所有记录
-  const cloudItems = await retryQuery<{ id: string }[]>(() =>
-    supabase
+  const cloudItems = await retryQuery<{ id: string }[]>(async () => {
+    const result = await supabase
       .from(tableName)
       .select('id')
-      .eq('user_id', userId)
-  );
+      .eq('user_id', userId);
+    return result;
+  });
 
   const cloudIds = new Set(cloudItems?.map((d) => d.id) || []);
   const localIds = new Set(localItems.map(d => d.id));
@@ -194,17 +195,20 @@ export async function checkCloudDataExists(): Promise<boolean> {
   if (!userId) return false;
 
   try {
-    const deliveries = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('deliveries').select('id').eq('user_id', userId).limit(1)
-    );
+    const deliveries = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('deliveries').select('id').eq('user_id', userId).limit(1);
+      return result;
+    });
 
-    const todos = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('todos').select('id').eq('user_id', userId).limit(1)
-    );
+    const todos = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('todos').select('id').eq('user_id', userId).limit(1);
+      return result;
+    });
 
-    const notes = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('interview_notes').select('id').eq('user_id', userId).limit(1)
-    );
+    const notes = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('interview_notes').select('id').eq('user_id', userId).limit(1);
+      return result;
+    });
 
     return !!(deliveries?.length || todos?.length || notes?.length);
   } catch (e) {
@@ -225,17 +229,20 @@ export async function getCloudDataStats(): Promise<{
   console.log('[CloudStats] 获取云端统计，用户ID:', userId);
 
   try {
-    const deliveries = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('deliveries').select('id').eq('user_id', userId)
-    );
+    const deliveries = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('deliveries').select('id').eq('user_id', userId);
+      return result;
+    });
 
-    const todos = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('todos').select('id').eq('user_id', userId)
-    );
+    const todos = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('todos').select('id').eq('user_id', userId);
+      return result;
+    });
 
-    const notes = await retryQuery<{ id: string }[]>(() =>
-      supabase.from('interview_notes').select('id').eq('user_id', userId)
-    );
+    const notes = await retryQuery<{ id: string }[]>(async () => {
+      const result = await supabase.from('interview_notes').select('id').eq('user_id', userId);
+      return result;
+    });
 
     const stats = {
       deliveries: deliveries?.length || 0,
