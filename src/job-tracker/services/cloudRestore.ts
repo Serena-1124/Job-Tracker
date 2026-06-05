@@ -43,6 +43,7 @@ export async function restoreFromCloud(): Promise<{
       positionTypeName: d.position_type_name,
       location: d.location,
       salary: d.salary,
+      tags: d.tags || [],
       remark: d.remark,
       links: d.links || [],
       files: d.files || [],

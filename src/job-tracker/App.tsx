@@ -23,7 +23,7 @@ import { useDeliveryStore } from './stores/deliveryStore';
 import { syncLocalDataToCloud, checkCloudDataExists, checkLocalDataExists } from './services/syncService';
 import { restoreFromCloud } from './services/cloudRestore';
 import { switchDatabase } from './services/db';
-import { message, Modal } from 'antd';
+import { message } from 'antd';
 
 function AppInitializer({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

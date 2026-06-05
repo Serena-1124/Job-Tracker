@@ -15,7 +15,7 @@ async function retryQuery<T>(
   for (let i = 0; i < maxRetries; i++) {
     const { data, error } = await queryFn();
     if (!error) return data;
-    
+
     console.warn(`[Retry] 第 ${i + 1}/${maxRetries} 次重试...`, error.message);
     if (i < maxRetries - 1) {
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -34,14 +34,14 @@ async function syncTable<T extends { id: string }>(
   console.log(`[Sync] ${tableName}: 本地 ${localItems.length} 条`);
 
   // 1. 获取云端该用户的所有记录
-  const cloudItems = await retryQuery(() =>
+  const cloudItems = await retryQuery<{ id: string }[]>(() =>
     supabase
       .from(tableName)
       .select('id')
       .eq('user_id', userId)
   );
 
-  const cloudIds = new Set(cloudItems?.map((d: any) => d.id) || []);
+  const cloudIds = new Set(cloudItems?.map((d) => d.id) || []);
   const localIds = new Set(localItems.map(d => d.id));
 
   // 2. 需要插入的：本地有但云端没有
@@ -155,8 +155,10 @@ export async function syncLocalDataToCloud(): Promise<{
       delivery_id: n.deliveryId || null,
       company_name: n.companyName || null,
       position_name: n.positionName || null,
-      round: n.interviewRound || null,
+      title: n.title,
+      interview_round: n.interviewRound || null,
       interviewer: n.interviewer || null,
+      interview_date: n.interviewDate || null,
       content: n.content,
       sort_order: n.sortOrder || 0,
       created_at: n.createdAt,
@@ -192,15 +194,15 @@ export async function checkCloudDataExists(): Promise<boolean> {
   if (!userId) return false;
 
   try {
-    const deliveries = await retryQuery(() =>
+    const deliveries = await retryQuery<{ id: string }[]>(() =>
       supabase.from('deliveries').select('id').eq('user_id', userId).limit(1)
     );
 
-    const todos = await retryQuery(() =>
+    const todos = await retryQuery<{ id: string }[]>(() =>
       supabase.from('todos').select('id').eq('user_id', userId).limit(1)
     );
 
-    const notes = await retryQuery(() =>
+    const notes = await retryQuery<{ id: string }[]>(() =>
       supabase.from('interview_notes').select('id').eq('user_id', userId).limit(1)
     );
 
@@ -223,15 +225,15 @@ export async function getCloudDataStats(): Promise<{
   console.log('[CloudStats] 获取云端统计，用户ID:', userId);
 
   try {
-    const deliveries = await retryQuery(() =>
+    const deliveries = await retryQuery<{ id: string }[]>(() =>
       supabase.from('deliveries').select('id').eq('user_id', userId)
     );
 
-    const todos = await retryQuery(() =>
+    const todos = await retryQuery<{ id: string }[]>(() =>
       supabase.from('todos').select('id').eq('user_id', userId)
     );
 
-    const notes = await retryQuery(() =>
+    const notes = await retryQuery<{ id: string }[]>(() =>
       supabase.from('interview_notes').select('id').eq('user_id', userId)
     );
 

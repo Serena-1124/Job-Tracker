@@ -18,7 +18,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentTheme, themeConfig, setTheme } = useThemeStore();
-  const { mode, setNone } = useAuthMode();
+  const { setNone } = useAuthMode();
   const [themeDrawerVisible, setThemeDrawerVisible] = useState(false);
 
   const handleLogout = () => {
